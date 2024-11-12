@@ -3,6 +3,7 @@ package edu.nju.isefuzz.fuzzer;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 
 public class DemoMutationBlackBoxFuzzer {
@@ -15,7 +16,7 @@ public class DemoMutationBlackBoxFuzzer {
 
         // Initialize. Parse args and prepare seed queue
         if (args.length != 2) {
-            System.out.println("DemoMutationBlackBoxFuzzer: <classpath> <target_name> <out_dir>");
+            System.out.println("DemoMutationBlackBoxFuzzer: <classpath> <out_dir>");
             System.exit(0);
         }
         String cp = args[0];
@@ -39,13 +40,14 @@ public class DemoMutationBlackBoxFuzzer {
                     nextSeed, seedQueue.size());
 
             // Generate offspring inputs.
-            Set<String> testInputs = generate(nextSeed);
+            Set<String> testInputs = generate(nextSeed,nextSeed.fileType,new HashSet<>());
 
             // Execute each test input.
             for (String ti : testInputs) {
+                String path=writePngToTempFile(ti.getBytes());
                 System.out.printf("[FUZZER] FuzzRnd No.%d, execute the target with input `%s`",
-                        fuzzRnd, ti);
-                ExecutionResult execRes = execute(cp, ti);
+                        fuzzRnd, path);
+                ExecutionResult execRes = execute(cp, path);
                 System.out.println(execRes.info);
 
                 // Output analysis.
@@ -104,13 +106,26 @@ public class DemoMutationBlackBoxFuzzer {
 
         String content;
         boolean isFavored;
-
+        String fileType;
         boolean isCrash;
 
         Seed(String content, boolean isFavored) {
             this.content = content;
             this.isFavored = isFavored;
             this.isCrash = false;
+            this.fileType = "unknown";
+        }
+        Seed(File pngFile) throws IOException {
+            if (pngFile == null || !pngFile.exists() || !pngFile.isFile()) {
+                throw new IllegalArgumentException("Invalid file provided.");
+            }
+
+            // 读取 PNG 文件内容为字节数组并转换为字符串表示
+            byte[] fileBytes = Files.readAllBytes(pngFile.toPath());
+            this.content = new String(fileBytes);
+            this.isFavored = true; // 默认设置为未受欢迎
+            this.isCrash = false;
+            this.fileType = "png";
         }
 
         Seed(String content) {
@@ -144,6 +159,16 @@ public class DemoMutationBlackBoxFuzzer {
      */
 //    static Seed initSeed = new Seed("abcde", true);
     static Seed initSeed = new Seed("helln", true);
+    static File pngFile = new File("testcases/images/png/not_kitty.png");
+    static Seed pngSeed;
+
+    static {
+        try {
+            pngSeed = new Seed(pngFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * The preparation stage for fuzzing. At this stage, we tend to
@@ -151,7 +176,7 @@ public class DemoMutationBlackBoxFuzzer {
      * produce a selective seed queue for fuzzing
      */
     private static List<Seed> prepare() {
-        return new ArrayList<>(Collections.singletonList(initSeed));
+        return new ArrayList<>(Collections.singletonList(pngSeed));
     }
 
 
@@ -222,6 +247,20 @@ public class DemoMutationBlackBoxFuzzer {
         return testInputs;
     }
 
+    public static Set<String> generate(Seed seed, String fileType, Set<String> otherSeeds) {
+        String sCont = seed.content;
+        int basePower = 5;
+        int power = seed.isFavored ? basePower * 10 : basePower; // 权重影响生成数量
+        Set<String> testInputs = new HashSet<>(power);
+
+        for (int i = 0; i < power; i++) {
+            // 这里可以随机选择使用哪个变异算子
+            String mutatedInput = Mutator.mutate(sCont, fileType, otherSeeds);
+            testInputs.add(mutatedInput);
+        }
+
+        return testInputs;
+    }
 
     /**
      * A simple wrapper for execution result
@@ -326,5 +365,20 @@ public class DemoMutationBlackBoxFuzzer {
         }
 
     }
+
+    public static String writePngToTempFile(byte[] pngData) throws IOException {
+        // 创建一个临时文件存储变异后的 PNG 数据
+        File tempFile = File.createTempFile("mutated_", ".png", new File(System.getProperty("java.io.tmpdir")));
+        tempFile.deleteOnExit(); // 程序结束后自动删除临时文件
+
+        // 将数据写入临时文件
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(pngData);
+        }
+
+        System.out.println("临时文件路径: " + tempFile.getAbsolutePath());
+        return tempFile.getCanonicalPath();
+    }
+
 
 }
