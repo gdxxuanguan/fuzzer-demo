@@ -1,5 +1,6 @@
 package edu.nju.isefuzz.fuzzer;
 
+import com.sun.source.tree.CompilationUnitTree;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -7,12 +8,18 @@ import java.nio.file.Files;
 import java.util.*;
 
 public class DemoMutationBlackBoxFuzzer {
-
+    static AFLAnalyzer analyzer=AFLAnalyzer.getInstance();
+    static String dir= "/home/roxy/Desktop/fuzzer-demo/src/main/resources/cpptest/";
+    static String testFile="readpng";
+//    static String testInput="not_kitty.png";
 
     /**
      * The entry point of fuzzing.
      */
     public static void main(String[] args) throws Exception {
+
+        excuteCpp("not_kitty.png");
+        excuteCpp("not_kitty_gamma.png");
 
         // Initialize. Parse args and prepare seed queue
         if (args.length != 2) {
@@ -97,6 +104,34 @@ public class DemoMutationBlackBoxFuzzer {
         // Postprocess. Seed preservation (favored & crashed).
         postprocess(outDir, seedQueue);
 
+    }
+
+    private static void excuteCpp(String testInput){
+
+        try {
+            // 使用ProcessBuilder执行C++程序
+            ProcessBuilder builder = new ProcessBuilder(dir+"coverage_collector",dir+testFile,dir+testInput); // 替换为你的可执行文件路径
+            builder.redirectErrorStream(true); // 合并错误流和标准输出流
+            Process process = builder.start();
+            String output="";
+            // 读取C++程序的输出
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output += line+'\n';// 在Java程序中输出
+                }
+//                System.out.println(output);
+                System.out.println(analyzer.parseAflOutput(output));
+            }
+
+
+            // 等待C++程序执行完毕
+            int exitCode = process.waitFor();
+            System.out.println("C++ program exited with code: " + exitCode);
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
