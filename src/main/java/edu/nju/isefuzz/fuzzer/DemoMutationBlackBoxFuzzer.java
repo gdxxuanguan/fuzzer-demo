@@ -117,13 +117,18 @@ public class DemoMutationBlackBoxFuzzer {
             // 读取C++程序的输出
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
+                int cnt=0;
                 while ((line = reader.readLine()) != null) {
                     output += line+'\n';// 在Java程序中输出
+                    cnt++;
                 }
-//                System.out.println(output);
+                System.out.println("cnt of blocks: "+cnt);//count of blocks
+                char status=output.charAt(0); //标明是否出现错误，为'0'正常，为'1'说明出现错误
+                String time=output.substring(1, output.indexOf('\n'));
+                System.out.println(time);
                 System.out.println(analyzer.parseAflOutput(output));
-            }
 
+            }
 
             // 等待C++程序执行完毕
             int exitCode = process.waitFor();

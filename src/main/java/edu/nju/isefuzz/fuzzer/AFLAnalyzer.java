@@ -33,7 +33,7 @@ public class AFLAnalyzer {
             if(!existingCoverage.contains(matcher.group(1))) {
                 existingCoverage.add(matcher.group(1));
                 isNewCoverage = true;
-                System.out.println("bloack "+matcher.group(1));
+//                System.out.println("block "+matcher.group(1));
             }
         }
         return isNewCoverage;
