@@ -11,6 +11,10 @@ public class DemoMutationBlackBoxFuzzer {
     static AFLAnalyzer analyzer=AFLAnalyzer.getInstance();
     static String dir= "/home/roxy/Desktop/fuzzer-demo/src/main/resources/cpptest/";
     static String testFile="readpng";
+    static int cntOfBlocks; //执行块数
+    static boolean hasFatal=false; //运行是否出错
+    static boolean reachNewBlock=false;  //是否执行新的块
+    static String executeTime; //执行时间
 //    static String testInput="not_kitty.png";
 
     /**
@@ -122,11 +126,14 @@ public class DemoMutationBlackBoxFuzzer {
                     output += line+'\n';// 在Java程序中输出
                     cnt++;
                 }
+                cntOfBlocks=cnt;
                 System.out.println("cnt of blocks: "+cnt);//count of blocks
                 char status=output.charAt(0); //标明是否出现错误，为'0'正常，为'1'说明出现错误
+                hasFatal=(status=='1');
+
                 String time=output.substring(1, output.indexOf('\n'));
-                System.out.println(time);
-                System.out.println(analyzer.parseAflOutput(output));
+                executeTime=time;
+                reachNewBlock=analyzer.parseAflOutput(output);
 
             }
 
