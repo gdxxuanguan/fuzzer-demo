@@ -144,12 +144,12 @@ public class DemoMutationBlackBoxFuzzer {
                 String executeHours = df.format(executeTimeInHours);
 
                 try {
-                    File file = new File("/home/roxy/Desktop/"+testFile+".txt");
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    writer.write(testFile + "\n");
+                    File file = new File("/home/roxy/Desktop/" + testFile + ".txt");
+                    // 以追加模式打开文件，第二个参数设置为true
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
                     writer.write(cntOfBlocks + " " + executeHours + "\n");
                     writer.close();
-                    System.out.println("数据已成功保存到 " + file.getAbsolutePath());
+                    System.out.println("数据已成功追加保存到 " + file.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
