@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class DemoMutationBlackBoxFuzzer {
@@ -135,11 +136,18 @@ public class DemoMutationBlackBoxFuzzer {
                 executeTime=time;
                 reachNewBlock=analyzer.parseAflOutput(output);
 
+                double executeTimeInSeconds = Double.parseDouble(executeTime);
+
+                // 将秒数转换为小时数，保留两位小数
+                double executeTimeInHours = executeTimeInSeconds / 3600;
+                DecimalFormat df = new DecimalFormat("#.##");
+                String executeHours = df.format(executeTimeInHours);
+
                 try {
                     File file = new File("/home/roxy/Desktop/"+testFile+".txt");
                     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                     writer.write(testFile + "\n");
-                    writer.write(cntOfBlocks + " " + executeTime + "\n");
+                    writer.write(cntOfBlocks + " " + executeHours + "\n");
                     writer.close();
                     System.out.println("数据已成功保存到 " + file.getAbsolutePath());
                 } catch (IOException e) {
