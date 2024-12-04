@@ -135,6 +135,16 @@ public class DemoMutationBlackBoxFuzzer {
                 executeTime=time;
                 reachNewBlock=analyzer.parseAflOutput(output);
 
+                try {
+                    File file = new File("/home/roxy/Desktop/"+testFile+".txt");
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                    writer.write(testFile + "\n");
+                    writer.write(cntOfBlocks + " " + executeTime + "\n");
+                    writer.close();
+                    System.out.println("数据已成功保存到 " + file.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             // 等待C++程序执行完毕
