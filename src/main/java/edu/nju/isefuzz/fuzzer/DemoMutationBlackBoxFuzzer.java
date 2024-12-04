@@ -87,8 +87,8 @@ public class DemoMutationBlackBoxFuzzer {
                 // Remove previously unfavored seeds.
                 List<Seed> unfavoredSeeds = new ArrayList<>();
                 seedQueue.stream()
-                         .filter(s -> !s.isFavored)
-                         .forEach(unfavoredSeeds::add);
+                        .filter(s -> !s.isFavored)
+                        .forEach(unfavoredSeeds::add);
                 seedQueue.removeAll(unfavoredSeeds);
                 System.out.printf("[FUZZER] Shrink queue, size: %d -> %d\n",
                         oriSize, seedQueue.size());
@@ -148,12 +148,15 @@ public class DemoMutationBlackBoxFuzzer {
         boolean isFavored;
         String fileType;
         boolean isCrash;
+        int blockCount; // 覆盖块数量属性
+
 
         Seed(String content, boolean isFavored) {
             this.content = content;
             this.isFavored = isFavored;
             this.isCrash = false;
             this.fileType = "unknown";
+            this.blockCount = 0;
         }
         Seed(File pngFile) throws IOException {
             if (pngFile == null || !pngFile.exists() || !pngFile.isFile()) {
@@ -166,6 +169,7 @@ public class DemoMutationBlackBoxFuzzer {
             this.isFavored = true; // 默认设置为未受欢迎
             this.isCrash = false;
             this.fileType = "png";
+            this.blockCount = 0;
         }
 
         Seed(String content) {
@@ -180,6 +184,11 @@ public class DemoMutationBlackBoxFuzzer {
             this.isCrash = true;
         }
 
+        // 增加了Blocks
+        public void setBlockCount(int blockCount) {
+            this.blockCount = blockCount;
+        }
+
         @Override
         public boolean equals(Object that) {
             if (that instanceof Seed)
@@ -187,10 +196,11 @@ public class DemoMutationBlackBoxFuzzer {
             return false;
         }
 
+        // 增加了Blocks
         @Override
         public String toString() {
             String suffix = this.isFavored ? "@favored" : "@unfavored";
-            return this.content + suffix;
+            return this.content + suffix + " [Blocks: " + this.blockCount + "]";
         }
     }
 
@@ -308,14 +318,27 @@ public class DemoMutationBlackBoxFuzzer {
     private static class ExecutionResult {
         String info;
         int exitVal;
+        int blockCount; // 覆盖块数量属性
 
         ExecutionResult(String info, int exitVal) {
             this.info = info;
             this.exitVal = exitVal;
+            this.blockCount = 0;
+        }
+        // 增加一个有block的构造函数
+        ExecutionResult(String info, int exitVal, int blockCount) {
+            this.info = info;
+            this.exitVal = exitVal;
+            this.blockCount = blockCount;
         }
 
         public boolean isCrash() {
             return exitVal != 0;
+        }
+
+        // 增加了Blocks
+        public void setBlockCount(int blockCount) {
+            this.blockCount = blockCount;
         }
 
         @Override
