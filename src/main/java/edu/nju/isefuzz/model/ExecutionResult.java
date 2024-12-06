@@ -7,6 +7,11 @@ package edu.nju.isefuzz.model;
  * @Date 2024/12/6 14:10
  * @Version V1.0
  */
+
+/**
+ * ExecutionResult类，单次运行程序后的返回包装
+ * 参考了DemoMutationBlackBoxFuzzer的静态类和static
+ */
 public class ExecutionResult {
   protected String info; // 信息
   protected int exitVal;  // 退出码

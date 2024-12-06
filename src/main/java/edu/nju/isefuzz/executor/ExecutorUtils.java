@@ -6,6 +6,12 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * ExecutorUtils，目前是:1.ProcessBuilder调用cpp文件 -> 2.cpp运行单个target
+ * 【cpp文件的string command = string(program) + " < " + input_file部分还需要修改才能适配其他命令，
+ * 其他target不需要标准输入】-> 3.java程序接下cpp输出，得到ExecutionResult
+ * 主要方法 ： ExecutionResult result = executeCpp(coverageCollectorPath, targetProgramPath, inputFilePath);
+ */
 public class ExecutorUtils {
 
   private static final int MAP_SIZE = 65536; // 覆盖信息的最大块数
@@ -110,9 +116,7 @@ public class ExecutorUtils {
   }
 
   public static void main(String[] args) {
-
     String projectRootPath = System.getProperty("user.dir");
-    System.out.println(projectRootPath);
     String coverageCollectorPath = projectRootPath + "/src/main/resources/cpptest/coverage_collector"; ; // 你要执行的工具路径
     String targetProgramPath = projectRootPath+"/target/classes/targets/readpng"; // 目标程序路径
     String inputFilePath = projectRootPath+"/testcases/images/png/not_kitty.png"; // 输入文件路径

@@ -16,6 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * MutatorUtils，变异seed
+ * 主要方法：Seed mutateSeed(Seed seed)
+ * 调试和观察：mutateFile(String fileType, String inputFilePath, String outputDirPath, int iterations)
+ * fileType是10个target的名称 如cxxfilt，objdump
+ */
+
 public class MutatorUtils {
   private static final Logger logger = Logger.getLogger(MutatorUtils.class.getName());
 
