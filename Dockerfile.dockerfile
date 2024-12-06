@@ -11,9 +11,8 @@ RUN echo "更新系统和安装工具..." && \
         maven \
         vim \
         libjpeg62 \
-        libpcap0.8 && \
-        openjdk-11-jdk && \
-    echo "系统更新完成。"
+        libpcap0.8 \
+        openjdk-11-jdk
 
 # djpeg需要的库
 RUN wget http://ftp.de.debian.org/debian/pool/main/libj/libjpeg-turbo/libjpeg62-turbo_2.1.5-2_amd64.deb && \
