@@ -49,18 +49,18 @@ int main(int argc, char* argv[]) {
 
     // 运行指定程序
     int result = system(command.c_str());
-
+    result= WEXITSTATUS(result);
 
     // 结束计时
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
 
-    //deal error
+    //deal error 小幅度修改了输出格式，方便match
     if (result != 0) {
-        cout<<1;
+        cout<<"Exit code: "<<result<<endl;
         // 处理错误，例如退出程序或采取其他措施
     }else{
-        cout<<0;
+        cout<<"Exit code: "<<result<<endl;
     }
 
     // 输出执行时间
