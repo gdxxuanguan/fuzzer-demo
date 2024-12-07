@@ -18,6 +18,8 @@ public class DemoMutationBlackBoxFuzzer {
     static String executeTime; //执行时间
 //    static String testInput="not_kitty.png";
 
+    static File file = new File("/home/roxy/Desktop/" + testFile + ".txt");
+
     /**
      * The entry point of fuzzing.
      */
@@ -144,7 +146,6 @@ public class DemoMutationBlackBoxFuzzer {
                 String executeHours = df.format(executeTimeInHours);
 
                 try {
-                    File file = new File("/home/roxy/Desktop/" + testFile + ".txt");
                     // 以追加模式打开文件，第二个参数设置为true
                     BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
                     writer.write(cntOfBlocks + " " + executeHours + "\n");
