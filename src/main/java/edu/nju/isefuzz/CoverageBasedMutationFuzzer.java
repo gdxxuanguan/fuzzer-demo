@@ -11,11 +11,15 @@ import edu.nju.isefuzz.seedSorter.SortingStrategy;
 import edu.nju.isefuzz.util.PriorityCalculator;
 import edu.nju.isefuzz.util.TempFileHandler;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -56,6 +60,10 @@ public class CoverageBasedMutationFuzzer {
         String targetProgramPath = projectRootPath + args[0];
         String initialSeedPath = projectRootPath + args[1];
         String outputDir = args[2];
+
+        //获取target名字,创建结果存储文件
+        String[] tmp = targetProgramPath.split("/");
+        File file = new File(outputDir + "/" + tmp[tmp.length-1] + ".txt");
 
         //判断目标程序是否存在
         Path targetPath = Paths.get(targetProgramPath);
@@ -157,6 +165,26 @@ public class CoverageBasedMutationFuzzer {
                     } catch (Exception e) {
                         logger.severe("Execution failed: " + e.getMessage());
                         continue; // 跳过当前测试输入，继续下一个
+                    }
+
+                    //将覆盖率和执行时间写入存储文件
+                    String executeTime = execResult.getExecuteTime();
+                    int cntOfBlocks = execResult.getCntOfBlocks();
+
+                    // 将秒数转换为小时数，保留两位小数
+                    double executeTimeInSeconds = Double.parseDouble(executeTime);
+                    double executeTimeInHours = executeTimeInSeconds / 3600;
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    String executeHours = df.format(executeTimeInHours);
+
+                    try {
+                        // 以追加模式打开文件，第二个参数设置为true
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+                        writer.write(cntOfBlocks + " " + executeHours + "\n");
+                        writer.close();
+                        System.out.println("数据已成功追加保存到 " + file.getAbsolutePath());
+                    } catch (IOException e) {
+                        logger.severe("存储失败: " + e.getMessage());
                     }
 
                     // 创建潜在种子对象

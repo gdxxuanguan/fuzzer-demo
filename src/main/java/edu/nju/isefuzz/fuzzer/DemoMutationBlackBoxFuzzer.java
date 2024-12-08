@@ -137,23 +137,6 @@ public class DemoMutationBlackBoxFuzzer {
                 String time=output.substring(1, output.indexOf('\n'));
                 executeTime=time;
                 reachNewBlock=analyzer.parseAflOutput(output);
-
-                double executeTimeInSeconds = Double.parseDouble(executeTime);
-
-                // 将秒数转换为小时数，保留两位小数
-                double executeTimeInHours = executeTimeInSeconds / 3600;
-                DecimalFormat df = new DecimalFormat("#.##");
-                String executeHours = df.format(executeTimeInHours);
-
-                try {
-                    // 以追加模式打开文件，第二个参数设置为true
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-                    writer.write(cntOfBlocks + " " + executeHours + "\n");
-                    writer.close();
-                    System.out.println("数据已成功追加保存到 " + file.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
 
             // 等待C++程序执行完毕

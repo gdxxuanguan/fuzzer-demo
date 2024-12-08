@@ -1,4 +1,4 @@
-package edu.nju.isefuzz.fuzzer;
+package edu.nju.isefuzz.Evaluation;
 
 import java.io.*;
 import java.util.ArrayList;
