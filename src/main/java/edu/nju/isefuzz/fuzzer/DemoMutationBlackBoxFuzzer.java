@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class DemoMutationBlackBoxFuzzer {
@@ -16,6 +17,8 @@ public class DemoMutationBlackBoxFuzzer {
     static boolean reachNewBlock=false;  //是否执行新的块
     static String executeTime; //执行时间
 //    static String testInput="not_kitty.png";
+
+    static File file = new File("/home/roxy/Desktop/" + testFile + ".txt");
 
     /**
      * The entry point of fuzzing.
@@ -134,7 +137,6 @@ public class DemoMutationBlackBoxFuzzer {
                 String time=output.substring(1, output.indexOf('\n'));
                 executeTime=time;
                 reachNewBlock=analyzer.parseAflOutput(output);
-
             }
 
             // 等待C++程序执行完毕
