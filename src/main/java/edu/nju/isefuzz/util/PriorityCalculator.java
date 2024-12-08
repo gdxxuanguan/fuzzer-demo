@@ -29,7 +29,7 @@ public class PriorityCalculator {
         boolean isCrash = seed.isCrash();
         boolean isFavored = seed.isFavored();
         int blockCount = seed.getBlockCount();
-        double lastExecutionTime = seed.getLastExecutionTime() == null ? 0 : Double.parseDouble(seed.getLastExecutionTime());
+        double lastExecutionTime = seed.getLastExecutionTime().isEmpty() ? 0 : Double.parseDouble(seed.getLastExecutionTime());
 
         // 从 metadata 中获取执行次数
         int executionCount = getIntegerFromMetadata(metadata, "executionCount");

@@ -171,6 +171,17 @@ public class MutatorUtils {
           1  // 变异次数
       );
 
+      // 示例：测试变异JPEG文件
+      logger.info("开始测试JPEG文件变异...");
+      Path jpegInputPath = baseDir.resolve(Paths.get("images", "jpeg", "not_kitty.jpg"));
+      mutateFile(
+            "djpeg",  // 文件类型
+            jpegInputPath.toString(),  // 输入文��路径（相对路径）
+            tempDirPath.toString(),  // 临时输出目录（相对路径）
+            1  // 变异次数
+      );
+
+
     } catch (Exception e) {
       logger.severe("在变异过程中发生了错误: " + e.getMessage());
       e.printStackTrace();
