@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -48,6 +50,8 @@ public class CoverageBasedMutationFuzzer {
     private static final String TEMP_DIR = "/tmp/fuzzing_temp/";
 
     private static final String COVERAGE_COLLECTOR_PATH = "/cpptest/coverage_collector2";
+
+    private static final long runDurationMillis = 24 * 60 * 60 * 1000L; // 24小时
 
     public static void main(String[] args) throws Exception {
         // 检查命令行参数的数量是否正确
@@ -123,8 +127,10 @@ public class CoverageBasedMutationFuzzer {
 //            postprocess(outputDirectory, energyScheduler);
         }));
 
-        // 主循环：持续执行直到手动停止（如 Ctrl+C）
-        while (true) {
+        // 记录自测试开始时间
+        Instant startInstant = Instant.now();
+        // 主循环：持续执行直到24h或者手动停止（如 Ctrl+C）
+        while (Duration.between(startInstant, Instant.now()).toMillis() < runDurationMillis) {
             fuzzRound++; // 更新模糊测试轮次
             //从 SeedSorter 中获取优先级最高的种子
             Seed selectedSeed = seedSorter.pollSeed();
@@ -177,20 +183,20 @@ public class CoverageBasedMutationFuzzer {
                         continue; // 跳过当前测试输入，继续下一个
                     }
 
-                    //将覆盖率和执行时间写入存储文件
-                    String executeTime = execResult.getExecuteTime();
-                    int cntOfBlocks = execResult.getCntOfBlocks();
-
-                    // 将秒数转换为小时数，保留两位小数
-                    double executeTimeInSeconds = Double.parseDouble(executeTime);
-                    double executeTimeInHours = executeTimeInSeconds / 3600;
+                    // 计算自测试开始以来的累计时间
+                    Duration elapsedDuration = Duration.between(startInstant, Instant.now());
+                    double elapsedHours = elapsedDuration.toMillis() / 3600000.0; // 转换为小时
+                    // 保留两位小数
                     DecimalFormat df = new DecimalFormat("#.##");
-                    String executeHours = df.format(executeTimeInHours);
+                    String elapsedHoursStr = df.format(elapsedHours);
+
+                    // 获取覆盖的块数
+                    int cntOfBlocks = execResult.getCntOfBlocks();
 
                     try {
                         // 以追加模式打开文件，第二个参数设置为true
                         BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-                        writer.write(cntOfBlocks + " " + executeHours + "\n");
+                        writer.write(cntOfBlocks + " " + elapsedHoursStr + "\n");
                         writer.close();
                         System.out.println("数据已成功追加保存到 " + file.getAbsolutePath());
                     } catch (IOException e) {
