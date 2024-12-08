@@ -22,8 +22,7 @@ public class PcapMutator implements Mutator {
       content = applyRandomMutation(content);
     }
 
-    seed.setContent(content);
-    return seed;
+    return new Seed(content, seed.getFileType(), false);
   }
 
   /**

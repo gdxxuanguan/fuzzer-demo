@@ -24,8 +24,7 @@ public class PngMutator implements Mutator {
     // 确保PNG文件头部合法
     content = ensurePngMagicBytes(content);
 
-    seed.setContent(content);
-    return seed;
+    return new Seed(content, seed.getFileType(), false);
   }
 
   /**

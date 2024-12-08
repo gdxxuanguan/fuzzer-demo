@@ -22,8 +22,7 @@ public class XmlMutator implements Mutator {
       content = applyRandomMutation(content);
     }
 
-    seed.setContent(content);
-    return seed;
+    return new Seed(content, seed.getFileType(), false);
   }
 
   /**
@@ -108,11 +107,24 @@ public class XmlMutator implements Mutator {
   private byte[] addRandomAttribute(byte[] content) {
     String xml = new String(content);
     int pos = xml.indexOf("<", random.nextInt(xml.length()));
+
+    // 确保找到了 "<" 标签
     if (pos >= 0) {
       String randomAttr = " attr" + random.nextInt(100) + "=\"value\"";
       int insertPos = xml.indexOf(">", pos);
-      xml = xml.substring(0, insertPos) + randomAttr + xml.substring(insertPos);
+
+      // 确保找到了 ">" 标签
+      if (insertPos >= 0) {
+        xml = xml.substring(0, insertPos) + randomAttr + xml.substring(insertPos);
+      } else {
+        // 如果没有找到 ">"，则可能是一个不完整的标签，处理逻辑可以根据需要修改
+        System.out.println("Warning: No closing '>' found for tag starting at position " + pos);
+      }
+    } else {
+      // 如果没有找到 "<"，则输出警告
+      System.out.println("Warning: No '<' found in XML content.");
     }
+
     return xml.getBytes();
   }
 

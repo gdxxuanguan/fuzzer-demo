@@ -12,6 +12,7 @@ import edu.nju.isefuzz.mutator.mutators.XmlMutator;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -61,8 +62,8 @@ public class MutatorUtils {
    */
   public static Seed mutateSeed(Mutator mutator, Seed seed) throws Exception {
     // 执行变异操作，返回变异后的Seed
-    Seed mutatedSeed = mutator.mutate(seed);  // 调用mutate方法返回变异后的Seed
-    return mutatedSeed;
+
+      return mutator.mutate(seed);
   }
 
   /**
@@ -81,8 +82,7 @@ public class MutatorUtils {
       throw new IllegalArgumentException("未注册该类型的变异器: " + fileType);
     }
     // 执行变异，返回变异后的Seed
-    Seed mutatedSeed = mutator.mutate(seed);
-    return mutatedSeed;
+    return mutator.mutate(seed);
   }
 
 

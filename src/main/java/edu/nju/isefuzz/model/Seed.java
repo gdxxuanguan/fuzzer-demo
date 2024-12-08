@@ -1,5 +1,6 @@
 package edu.nju.isefuzz.model;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,8 @@ public class Seed {
   protected boolean isFavored; // 是否为优先种子
   protected boolean isCrash = false; // 是否触发崩溃
   protected int blockCount = 0; // 覆盖块数量
+  protected String lastExecutionTime; // 最近一次执行时间
+  protected double priorityScore; // 优先级分数
 
   // 动态元数据
   protected Map<String, Object> metadata = new ConcurrentHashMap<>();
@@ -31,6 +34,7 @@ public class Seed {
     this.content = content;
     this.fileType = fileType;
     this.isFavored = isFavored;
+    initializeMetadata();
   }
 
   /**
@@ -43,6 +47,16 @@ public class Seed {
     this.content = text.getBytes(); // 将字符串转为byte[]
     this.fileType = "txt";
     this.isFavored = isFavored;
+    initializeMetadata();
+  }
+
+  /**
+   * 初始化 metadata 字段，设置优先级相关的默认值。
+   */
+  private void initializeMetadata() {
+    metadata.put("executionCount", 0);           // 执行次数
+    metadata.put("newBlocks", 0);                // 新覆盖块数
+    metadata.put("entropy", calculateEntropy(content)); // 熵值
   }
 
   // 获取内容
@@ -86,6 +100,24 @@ public class Seed {
     this.blockCount = blockCount;
   }
 
+  // 最近一次执行时间
+  public String getLastExecutionTime() {
+    return lastExecutionTime;
+  }
+
+  public void setLastExecutionTime(String lastExecutionTime) {
+    this.lastExecutionTime = lastExecutionTime;
+  }
+
+  // 优先级分数
+  public double getPriorityScore() {
+    return priorityScore;
+  }
+
+  public void setPriorityScore(double priorityScore) {
+    this.priorityScore = priorityScore;
+  }
+
   // 动态元数据
   public Map<String, Object> getMetadata() {
     return metadata;
@@ -105,25 +137,52 @@ public class Seed {
     this.content = text.getBytes(); // 将String转为byte[]
   }
 
+  // 计算熵值的方法
+  private double calculateEntropy(byte[] data) {
+    if (data.length == 0) return 0.0;
+    int[] freq = new int[256];
+    for (byte b : data) {
+      freq[b & 0xFF]++;
+    }
+    double entropy = 0.0;
+    for (int f : freq) {
+      if (f > 0) {
+        double p = (double) f / data.length;
+        entropy -= p * (Math.log(p) / Math.log(2));
+      }
+    }
+    return entropy;
+  }
+
   @Override
   public boolean equals(Object that) {
     if (this == that) return true;
     if (that == null || getClass() != that.getClass()) return false;
     Seed seed = (Seed) that;
-    return Objects.equals(content, seed.content) &&
+    return Arrays.equals(content, seed.content) &&
         Objects.equals(fileType, seed.fileType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(content, fileType);
+    return Objects.hash(Arrays.hashCode(content), fileType);
   }
 
   @Override
   public String toString() {
-    String suffix = this.isFavored ? "@favored" : "@unfavored";
-    return "Seed[Type=" + fileType + ", Size=" + content.length + " bytes] " + suffix +
-        " [Blocks: " + this.blockCount + "]";
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Seed [Type=").append(fileType)
+            .append(", Size=").append(content.length).append(" bytes")
+            .append(", IsFavored=").append(isFavored ? "Yes" : "No")
+            .append(", BlockCount=").append(blockCount)
+            .append(", LastExecutionTime=").append(lastExecutionTime != null ? lastExecutionTime : "N/A")
+            .append(", PriorityScore=").append(priorityScore)
+            .append(", Metadata=").append(metadata)
+            .append("]");
+
+    return sb.toString();
   }
+
 }
 

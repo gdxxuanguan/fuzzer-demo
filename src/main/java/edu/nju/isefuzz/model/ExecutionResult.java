@@ -19,19 +19,22 @@ public class ExecutionResult {
   protected boolean hasFatal=false; //运行是否出错
   protected boolean reachNewBlock=false;  //是否执行新的块
   protected String executeTime; //执行时间
+  protected int newBlocks; //新块数
 
   // 无参构造方法
   public ExecutionResult() {
   }
 
   // 全参构造方法
-  public ExecutionResult(String info, int exitVal, int cntOfBlocks, boolean hasFatal, boolean reachNewBlock, String executeTime) {
+  public ExecutionResult(String info, int exitVal, int cntOfBlocks, boolean hasFatal, boolean reachNewBlock, String executeTime,
+                         int newBlocks) {
     this.info = info;
     this.exitVal = exitVal;
     this.cntOfBlocks = cntOfBlocks;
     this.hasFatal = hasFatal;
     this.reachNewBlock = reachNewBlock;
     this.executeTime = executeTime;
+    this.newBlocks = newBlocks;
   }
 
   // Getter 和 Setter 方法
@@ -83,6 +86,14 @@ public class ExecutionResult {
     this.executeTime = executeTime;
   }
 
+  public int getNewBlocks() {
+    return newBlocks;
+  }
+
+  public void setNewBlocks(int newBlocks) {
+    this.newBlocks = newBlocks;
+  }
+
   // toString 方法，方便调试和日志输出
   @Override
   public String toString() {
@@ -93,6 +104,7 @@ public class ExecutionResult {
         ", hasFatal=" + hasFatal +
         ", reachNewBlock=" + reachNewBlock +
         ", executeTime='" + executeTime + '\'' +
+        ", newBlocks=" + newBlocks +
         '}';
   }
 }

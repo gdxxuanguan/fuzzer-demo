@@ -29,8 +29,7 @@ public class CxxFiltMutator implements Mutator {
         break;
     }
 
-    seed.setContentFromString(mutatedString); // 更新变异后的种子内容
-    return seed;
+      return new Seed(mutatedString.getBytes(), seed.getFileType(), false);
   }
 
   // 生成合法的混淆名称

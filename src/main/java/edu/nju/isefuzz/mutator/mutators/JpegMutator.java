@@ -25,8 +25,7 @@ public class JpegMutator implements Mutator {
     // 确保JPEG文件头部合法
     content = ensureJpegMagicBytes(content);
 
-    seed.setContent(content);
-    return seed;
+    return new Seed(content, seed.getFileType(), false);
   }
 
   /**
