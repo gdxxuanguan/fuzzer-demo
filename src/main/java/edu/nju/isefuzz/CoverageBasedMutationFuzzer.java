@@ -8,6 +8,7 @@ import edu.nju.isefuzz.model.Seed;
 import edu.nju.isefuzz.mutator.MutatorUtils;
 import edu.nju.isefuzz.seedSorter.*;
 import edu.nju.isefuzz.seedSorter.SortingStrategy;
+import edu.nju.isefuzz.util.DirectoryUtils;
 import edu.nju.isefuzz.util.PriorityCalculator;
 import edu.nju.isefuzz.util.TempFileHandler;
 
@@ -46,7 +47,7 @@ public class CoverageBasedMutationFuzzer {
     // 定义硬编码的临时目录路径
     private static final String TEMP_DIR = "/tmp/fuzzing_temp/";
 
-    private static final String COVERAGE_COLLECTOR_PATH = "/cpptest/coverage_collector";
+    private static final String COVERAGE_COLLECTOR_PATH = "/cpptest/coverage_collector2";
 
     public static void main(String[] args) throws Exception {
         // 检查命令行参数的数量是否正确
@@ -60,6 +61,15 @@ public class CoverageBasedMutationFuzzer {
         String targetProgramPath = projectRootPath + args[0];
         String initialSeedPath = projectRootPath + args[1];
         String outputDir = args[2];
+
+        try {
+            // 调用 DirectoryUtils.resetDirectory 来处理 outputDir
+            DirectoryUtils.resetDirectory(outputDir);
+        } catch (IOException e) {
+            System.err.println("处理目录时发生错误: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
 
         //获取target名字,创建结果存储文件
         String[] tmp = targetProgramPath.split("/");
