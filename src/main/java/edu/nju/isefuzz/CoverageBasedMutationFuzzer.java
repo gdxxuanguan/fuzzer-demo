@@ -224,7 +224,7 @@ public class CoverageBasedMutationFuzzer {
                     try {
                         // 以追加模式打开文件，第二个参数设置为true
                         BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-                        writer.write(cntOfBlocks + " " + elapsedHoursStr + "\n");
+                        writer.write(coveredBlocks.size() + " " + elapsedHoursStr + "\n");
                         writer.close();
                         System.out.println("数据已成功追加保存到 " + file.getAbsolutePath());
                     } catch (IOException e) {
