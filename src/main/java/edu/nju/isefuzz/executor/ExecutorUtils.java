@@ -109,6 +109,7 @@ public class ExecutorUtils {
     boolean hasFatal = (exitCode != 0); // 非 0 退出码表示崩溃
     boolean reachNewBlock = false;
     String executeTime = "";
+    StringBuilder coverageInfoBuilder = new StringBuilder(); // 用于存储覆盖块信息
 
     // 解析输出时间和覆盖块
     Pattern timePattern = Pattern.compile("Execution time: ([0-9.]+) seconds");
@@ -130,12 +131,14 @@ public class ExecutorUtils {
         newBlocks++;
         coveredBlocks.add(blockId);
       }
+      // 将当前覆盖块的信息追加到 coverageInfoBuilder
+      coverageInfoBuilder.append(blockMatcher.group()).append("\n");
     }
     reachNewBlock = newBlocks > 0;
 
     // 创建并返回 ExecutionResult 对象
     ExecutionResult result = new ExecutionResult();
-    result.setInfo(output);
+    result.setInfo(coverageInfoBuilder.toString().trim());
     result.setExitVal(exitCode); // 设置目标程序的退出码
     result.setCntOfBlocks(cntOfBlocks);
     result.setHasFatal(hasFatal);

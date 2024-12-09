@@ -8,6 +8,8 @@ package edu.nju.isefuzz.model;
  * @Version V1.0
  */
 
+import java.util.Objects;
+
 /**
  * ExecutionResult类，单次运行程序后的返回包装
  * 参考了DemoMutationBlackBoxFuzzer的静态类和static
@@ -107,4 +109,19 @@ public class ExecutionResult {
         ", newBlocks=" + newBlocks +
         '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true; // 检查是否为同一个对象
+    if (o == null || getClass() != o.getClass()) return false; // 检查类型
+    ExecutionResult that = (ExecutionResult) o;
+    return exitVal == that.exitVal && // 比较 exitVal
+            info.equals(that.info); // 比较 info，处理 null 情况
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(info, exitVal);
+  }
+
 }

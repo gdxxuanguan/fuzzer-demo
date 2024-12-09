@@ -33,7 +33,7 @@ public class MutatorUtils {
     // 注册所有支持的 Mutator
     mutatorRegistry.put("cxxfilt",new CxxFiltMutator());
     mutatorRegistry.put("djpeg",new JpegMutator());
-    mutatorRegistry.put("luac", new LuaMutator());
+    mutatorRegistry.put("lua", new LuaMutator());
     mutatorRegistry.put("mjs",new JsMutator());
     mutatorRegistry.put("nm-new",new ElfMutator());
     mutatorRegistry.put("objdump", new ElfMutator());

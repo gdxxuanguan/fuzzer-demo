@@ -23,6 +23,8 @@ import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -49,7 +51,7 @@ public class CoverageBasedMutationFuzzer {
     // 定义硬编码的临时目录路径
     private static final String TEMP_DIR = "/tmp/fuzzing_temp/";
 
-    private static final String COVERAGE_COLLECTOR_PATH = "/cpptest/coverage_collector2";
+    private static final String COVERAGE_COLLECTOR_PATH = "/cpptest/coverage_collector";
 
     private static final long runDurationMillis = 24 * 60 * 60 * 1000L; // 24小时
 
@@ -67,17 +69,21 @@ public class CoverageBasedMutationFuzzer {
         String outputDir = args[2];
 
         try {
-            // 调用 DirectoryUtils.resetDirectory 来处理 outputDir
-            DirectoryUtils.resetDirectory(outputDir);
+            // 调用 DirectoryUtils.ensureDirectoryExists 来处理 outputDir
+            DirectoryUtils.ensureDirectoryExists(outputDir);
         } catch (IOException e) {
             System.err.println("处理目录时发生错误: " + e.getMessage());
-            e.printStackTrace();
             System.exit(1);
         }
 
         //获取target名字,创建结果存储文件
         String[] tmp = targetProgramPath.split("/");
-        File file = new File(outputDir + "/" + tmp[tmp.length-1] + ".txt");
+        // 获取当前时间
+        LocalDateTime now = LocalDateTime.now();
+        // 定义时间格式
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd_HH_mm_ss");
+        String timestamp = now.format(formatter);
+        File file = new File(outputDir + "/" + tmp[tmp.length-1] + timestamp + ".txt");
 
         //判断目标程序是否存在
         Path targetPath = Paths.get(targetProgramPath);
