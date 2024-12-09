@@ -33,9 +33,27 @@ public class ExecutorUtils {
                                            Set<Integer> coveredBlocks)
       throws IOException, InterruptedException {
 
+    //根据文件名选择输入方式
+    String command="";
+    if(targetProgramPath.endsWith("readpng")){
+      command=targetProgramPath+" < "+inputFilePath;
+    }else if(targetProgramPath.endsWith("readelf")){
+      command=targetProgramPath+" -a "+inputFilePath;
+    }else if(targetProgramPath.endsWith("objdump")){
+      command=targetProgramPath+" -d "+inputFilePath;
+    }else if(targetProgramPath.endsWith("mjs")){
+      command=targetProgramPath+" -f "+inputFilePath;
+    }else if(targetProgramPath.endsWith("tcpdump")){
+      command=targetProgramPath+" -nr "+inputFilePath;
+    }
+    else{
+      command=targetProgramPath+" "+inputFilePath;
+    }
+
+    System.out.println(coverageCollectorPath+" "+command);
+
     // 使用 ProcessBuilder 构建命令
-    ProcessBuilder processBuilder = new ProcessBuilder(
-        coverageCollectorPath, targetProgramPath, inputFilePath);
+    ProcessBuilder processBuilder = new ProcessBuilder(coverageCollectorPath, command);
     processBuilder.redirectErrorStream(true); // 合并标准错误流和输出流
 
     Process process = processBuilder.start();
@@ -127,14 +145,17 @@ public class ExecutorUtils {
 
     return result;
   }
+//
 
   // qkx 修改过路径
   public static void main(String[] args) {
     String projectRootPath = System.getProperty("user.dir");
+    projectRootPath+="/src/main/resources";
     String coverageCollectorPath = projectRootPath + "/cpptest/coverage_collector"; ; // 你要执行的工具路径
-    String targetProgramPath = projectRootPath+"/targets/readpng"; // 目标程序路径
-    String inputFilePath = projectRootPath+"/targets/not_kitty.png"; // 输入文件路径
+    String targetProgramPath = projectRootPath+"/targets/mjs"; // 目标程序路径
+    String inputFilePath = projectRootPath+"/testcases/others/js/small_script.js"; // 输入文件路径
     Set<Integer> coveredBlocks = new HashSet<>(); // 覆盖块的集合
+    System.out.println(projectRootPath);
     try {
       // 执行 C++ 程序并获取执行结果
       ExecutionResult result = executeCpp(coverageCollectorPath, targetProgramPath, inputFilePath, coveredBlocks);

@@ -11,13 +11,14 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    if (argc < 3) {
-        cerr << "Usage: " << argv[0] << " <program> <input_file>" << endl;
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " <command>" << endl;
         return 1;
     }
 
-    const char* program = argv[1];
-    const char* input_file = argv[2];
+    //const char* program = argv[1];
+    //const char* input_file = argv[2];
+    string command = argv[1];
 
     // 创建共享内存
     int shm_id = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
@@ -42,7 +43,7 @@ int main(int argc, char* argv[]) {
     std::memset(trace_bits, 0, MAP_SIZE);
 
     // 构建命令
-    string command = string(program) + " < " + input_file;
+    //string command = string(program) + " < " + input_file;
 
      // 开始计时
     auto start = chrono::high_resolution_clock::now();
@@ -78,3 +79,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
