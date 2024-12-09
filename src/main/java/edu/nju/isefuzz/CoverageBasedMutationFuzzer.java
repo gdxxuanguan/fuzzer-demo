@@ -12,10 +12,7 @@ import edu.nju.isefuzz.util.DirectoryUtils;
 import edu.nju.isefuzz.util.PriorityCalculator;
 import edu.nju.isefuzz.util.TempFileHandler;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,6 +81,31 @@ public class CoverageBasedMutationFuzzer {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd_HH_mm_ss");
         String timestamp = now.format(formatter);
         File file = new File(outputDir + "/" + tmp[tmp.length-1] + timestamp + ".txt");
+
+        //创建favor目录
+        String favorDir = outputDir + "/favor";
+        try {
+            DirectoryUtils.ensureDirectoryExists(favorDir);
+        } catch (IOException e) {
+            System.err.println("处理目录时发生错误: " + e.getMessage());
+            System.exit(1);
+        }
+        File favorFile;
+        long favorSeedIndex = 1L;
+        //创建crash目录
+        String crashDir = outputDir + "/crash";
+        try {
+            DirectoryUtils.ensureDirectoryExists(crashDir);
+        } catch (IOException e) {
+            System.err.println("处理目录时发生错误: " + e.getMessage());
+            System.exit(1);
+        }
+        File crashFile;
+        long crashSeedIndex = 1L;
+
+        //获取测试用例名字
+        String[] tmp2 = initialSeedPath.split("/");
+        String testCaseName = tmp2[tmp2.length-1];
 
         //判断目标程序是否存在
         Path targetPath = Paths.get(targetProgramPath);
@@ -192,8 +214,8 @@ public class CoverageBasedMutationFuzzer {
                     // 计算自测试开始以来的累计时间
                     Duration elapsedDuration = Duration.between(startInstant, Instant.now());
                     double elapsedHours = elapsedDuration.toMillis() / 3600000.0; // 转换为小时
-                    // 保留两位小数
-                    DecimalFormat df = new DecimalFormat("#.##");
+                    // 保留七位小数
+                    DecimalFormat df = new DecimalFormat("#.#######");
                     String elapsedHoursStr = df.format(elapsedHours);
 
                     // 获取覆盖的块数
@@ -219,6 +241,29 @@ public class CoverageBasedMutationFuzzer {
 
                     // 处理执行结果
                     seedHandler.handleExecutionResult(potentialSeed, execResult, observedResults);
+                    //创建种子文件
+                    //如果是favor，就将其创建到favor目录下
+                    if (potentialSeed.isFavored()) {
+                        favorFile = new File(favorDir+"/"+favorSeedIndex+"_"+testCaseName);
+                        try (FileOutputStream fos = new FileOutputStream(favorFile)) {
+                            fos.write(potentialSeed.getContent());
+                            logger.info("已成功将favor种子存入" + favorFile.getAbsolutePath());
+                            favorSeedIndex++;
+                        } catch (IOException e) {
+                            logger.severe("存入favor种子文件失败: " + e.getMessage());
+                        }
+                    }
+                    //如果是crash，就将其创建到crash目录下
+                    if (potentialSeed.isCrash()) {
+                        crashFile = new File(crashDir+"/"+crashSeedIndex+"_"+testCaseName);
+                        try (FileOutputStream fos = new FileOutputStream(crashFile)) {
+                            fos.write(potentialSeed.getContent());
+                            logger.info("已成功将crash种子存入" + crashFile.getAbsolutePath());
+                            crashSeedIndex++;
+                        } catch (IOException e) {
+                            logger.severe("存入crash种子文件失败: " + e.getMessage());
+                        }
+                    }
 
                     // 将潜在种子添加到能量调度器和种子列表中
                     energyScheduler.addSeed(potentialSeed);
