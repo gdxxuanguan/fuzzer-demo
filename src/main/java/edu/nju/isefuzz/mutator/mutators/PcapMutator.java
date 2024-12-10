@@ -1,9 +1,8 @@
 package edu.nju.isefuzz.mutator.mutators;
 
-
-import java.util.Random;
 import edu.nju.isefuzz.model.Seed;
 import edu.nju.isefuzz.mutator.Mutator;
+import java.util.Random;
 
 /**
  * 针对PCAP文件的特化Mutator。
@@ -16,9 +15,8 @@ public class PcapMutator implements Mutator {
   public Seed mutate(Seed seed) {
     byte[] content = seed.getContent();
 
-    // 在单次变异中综合多种策略
-    int mutationCount = random.nextInt(3) + 1; // 每次执行1-3种变异
-    mutationCount = 1;
+    // 每次执行1-3次变异操作
+    int mutationCount = random.nextInt(3) + 1;
     for (int i = 0; i < mutationCount; i++) {
       content = applyRandomMutation(content);
     }
@@ -27,82 +25,145 @@ public class PcapMutator implements Mutator {
   }
 
   /**
-   * 综合多种变异方法，随机选择一个执行。
+   * 综合多种变异方法，合法变异和非法变异的比例为8:2。
    */
   private byte[] applyRandomMutation(byte[] content) {
-    int choice = random.nextInt(5); // 扩展变异方法的种类
-    switch (choice) {
+    int choice = random.nextInt(100); // 生成0-99的随机数
+    if (choice < 80) {
+      return applyValidMutation(content); // 80%概率执行合法变异
+    } else {
+      return applyInvalidMutation(content); // 20%概率执行非法变异
+    }
+  }
+
+  /**
+   * 合法变异操作。
+   */
+  private byte[] applyValidMutation(byte[] content) {
+    switch (random.nextInt(4)) { // 合法变异类型
       case 0:
-        // 变异全局头
-        content = mutateGlobalHeader(content);
-        break;
+        return mutateGlobalHeaderFields(content); // 合法修改全局头的字段
       case 1:
-        // 变异数据包头
-        content = mutatePacketHeader(content);
-        break;
+        return mutatePacketHeader(content); // 修改数据包头
       case 2:
-        // 变异数据包数据
-        content = mutatePacketData(content);
-        break;
-      case 3:
-        // 插入随机数据包
-        content = insertRandomPacket(content);
-        break;
-      case 4:
-        // 截断文件
-        content = BasicMutators.truncate(content, Math.max(1, content.length - random.nextInt(50)));
-        break;
+        return mutatePacketData(content); // 修改数据包数据
       default:
-        break;
+        return insertRandomPacket(content); // 插入随机数据包
+    }
+  }
+
+  /**
+   * 非法变异操作。
+   */
+  private byte[] applyInvalidMutation(byte[] content) {
+    switch (random.nextInt(3)) { // 非法变异类型
+      case 0:
+        return corruptGlobalHeader(content); // 故意破坏全局头
+      case 1:
+        return truncateFile(content); // 截断文件
+      default:
+        return insertCorruptedPacket(content); // 插入非法数据包
+    }
+  }
+
+  /**
+   * 合法修改全局头的字段。
+   */
+  private byte[] mutateGlobalHeaderFields(byte[] content) {
+    // 假设全局头的魔数、版本号、时间戳字段需要保持基本合法
+    if (content.length >= 24) {
+      byte[] modifiedContent = content.clone();
+      // 仅修改时间戳字段（8-15字节）
+      BasicMutators.mutateRange(modifiedContent, 8, 16);
+      return modifiedContent;
     }
     return content;
   }
 
   /**
-   * 变异全局头（Global Header）。
+   * 故意破坏全局头。
    */
-  private byte[] mutateGlobalHeader(byte[] content) {
-    // 假设全局头为文件前24字节
-    return BasicMutators.mutateRange(content, 0, Math.min(24, content.length));
+  private byte[] corruptGlobalHeader(byte[] content) {
+    if (content.length >= 24) {
+      byte[] corruptedContent = content.clone();
+      // 直接破坏魔数字段（0-4字节），设置为随机值
+      corruptedContent[0] = (byte) 0xFF;
+      corruptedContent[1] = (byte) 0xFF;
+      corruptedContent[2] = (byte) random.nextInt(256);
+      corruptedContent[3] = (byte) random.nextInt(256);
+      return corruptedContent;
+    }
+    return content;
   }
 
   /**
-   * 变异数据包头（Packet Header）。
+   * 修改数据包头。
    */
   private byte[] mutatePacketHeader(byte[] content) {
-    // 假设数据包头从第25字节开始，单个数据包头长度为16字节
+    // 假设每个数据包头从第25字节开始，单个数据包头长度为16字节
     int offset = 24 + random.nextInt(Math.max(1, content.length - 24 - 16));
     return BasicMutators.mutateRange(content, offset, Math.min(offset + 16, content.length));
   }
 
   /**
-   * 变异数据包数据（Packet Data）。
+   * 修改数据包数据。
    */
   private byte[] mutatePacketData(byte[] content) {
-    // 假设数据包数据从40字节后开始
     int start = random.nextInt(Math.max(1, content.length / 2));
     int end = Math.min(content.length, start + random.nextInt(50));
     return BasicMutators.mutateRange(content, start, end);
   }
 
   /**
+   * 截断文件。
+   */
+  private byte[] truncateFile(byte[] content) {
+    return BasicMutators.truncate(content, Math.max(1, content.length - random.nextInt(100)));
+  }
+
+  /**
    * 插入随机数据包。
    */
   private byte[] insertRandomPacket(byte[] content) {
-    // 生成伪造的数据包（假设长度为64字节）
-    byte[] fakePacket = new byte[64];
-    random.nextBytes(fakePacket);
-
-    // 随机选择插入位置
-    int pos = random.nextInt(content.length);
-
-    // 创建新的字节数组，包含插入后的内容
-    byte[] newContent = new byte[content.length + fakePacket.length];
-    System.arraycopy(content, 0, newContent, 0, pos); // 原数据前半部分
-    System.arraycopy(fakePacket, 0, newContent, pos, fakePacket.length); // 插入伪造数据包
-    System.arraycopy(content, pos, newContent, pos + fakePacket.length, content.length - pos); // 原数据后半部分
-
-    return newContent;
+    byte[] randomPacket = generateRandomPacket();
+    return insertPacketAt(content, randomPacket, random.nextInt(content.length));
   }
 
+  /**
+   * 插入非法数据包。
+   */
+  private byte[] insertCorruptedPacket(byte[] content) {
+    byte[] corruptedPacket = generateCorruptedPacket();
+    return insertPacketAt(content, corruptedPacket, random.nextInt(content.length));
+  }
+
+  /**
+   * 生成随机数据包。
+   */
+  private byte[] generateRandomPacket() {
+    byte[] packet = new byte[64];
+    random.nextBytes(packet);
+    return packet;
+  }
+
+  /**
+   * 生成非法数据包。
+   */
+  private byte[] generateCorruptedPacket() {
+    byte[] packet = new byte[64];
+    random.nextBytes(packet);
+    packet[0] = (byte) 0xFF; // 设置非法头部标记
+    return packet;
+  }
+
+  /**
+   * 在指定位置插入数据包。
+   */
+  private byte[] insertPacketAt(byte[] content, byte[] packet, int pos) {
+    byte[] newContent = new byte[content.length + packet.length];
+    System.arraycopy(content, 0, newContent, 0, pos); // 原数据前半部分
+    System.arraycopy(packet, 0, newContent, pos, packet.length); // 插入数据包
+    System.arraycopy(content, pos, newContent, pos + packet.length, content.length - pos); // 原数据后半部分
+    return newContent;
+  }
 }

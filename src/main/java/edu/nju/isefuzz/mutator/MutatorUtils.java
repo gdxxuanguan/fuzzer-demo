@@ -158,7 +158,7 @@ public class MutatorUtils {
           "readpng",  // 文件类型
           pngInputPath.toString(),  // 输入文件路径（相对路径）
           tempDirPath.toString(),  // 临时输出目录（相对路径）
-          1  // 变异次数
+          15  // 变异次数
       );
 
       // 示例：测试变异XML文件
