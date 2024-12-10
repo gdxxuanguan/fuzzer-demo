@@ -18,6 +18,7 @@ public class PcapMutator implements Mutator {
 
     // 在单次变异中综合多种策略
     int mutationCount = random.nextInt(3) + 1; // 每次执行1-3种变异
+    mutationCount = 1;
     for (int i = 0; i < mutationCount; i++) {
       content = applyRandomMutation(content);
     }

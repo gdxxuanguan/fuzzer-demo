@@ -1,6 +1,5 @@
 package edu.nju.isefuzz.mutator.mutators;
 
-
 import java.util.Random;
 import edu.nju.isefuzz.model.Seed;
 import edu.nju.isefuzz.mutator.Mutator;
@@ -18,6 +17,7 @@ public class JpegMutator implements Mutator {
 
     // 在单次变异中综合多种策略
     int mutationCount = random.nextInt(3) + 1; // 每次执行1-3种变异
+    mutationCount = 1;
     for (int i = 0; i < mutationCount; i++) {
       content = applyRandomMutation(content);
     }
@@ -32,32 +32,55 @@ public class JpegMutator implements Mutator {
    * 综合多种变异方法，随机选择一个执行。
    */
   private byte[] applyRandomMutation(byte[] content) {
-    int choice = random.nextInt(5); // 扩展变异方法的种类
+    // 定义合法与非法变异的权重比例
+    int choice = random.nextInt(100);
+    if (choice < 80) {
+      // 合法变异（80%概率）
+      return applyValidMutation(content);
+    } else {
+      // 非法变异（20%概率）
+      return applyInvalidMutation(content);
+    }
+  }
+
+  /**
+   * 合法变异操作，保持JPEG文件解析性。
+   */
+  private byte[] applyValidMutation(byte[] content) {
+    int choice = random.nextInt(3);
     switch (choice) {
       case 0:
-        // 变异JPEG文件头部
-        content = mutateHeader(content);
-        break;
+        // 修改非关键字段
+        return mutateHeader(content);
       case 1:
-        // 随机插入或删除数据块
-        content = mutateDataBlocks(content);
-        break;
+        // 变异数据块
+        return mutateDataBlocks(content);
       case 2:
-        // 截断文件
-        content = BasicMutators.truncate(content, Math.max(1, content.length - random.nextInt(10)));
-        break;
-      case 3:
-        // 在文件末尾插入随机数据
-        content = BasicMutators.havocMutate(content, random.nextInt(10) + 1);
-        break;
-      case 4:
         // 修改段标记
-        content = mutateMarkers(content);
-        break;
+        return mutateMarkers(content);
       default:
-        break;
+        return content;
     }
-    return content;
+  }
+
+  /**
+   * 非法变异操作，可能破坏JPEG结构。
+   */
+  private byte[] applyInvalidMutation(byte[] content) {
+    int choice = random.nextInt(3);
+    switch (choice) {
+      case 0:
+        // 截断文件
+        return BasicMutators.truncate(content, Math.max(1, content.length - random.nextInt(10)));
+      case 1:
+        // 在文件末尾插入随机数据
+        return BasicMutators.havocMutate(content, random.nextInt(10) + 1);
+      case 2:
+        // 随机替换部分内容
+        return BasicMutators.mutateRange(content, 0, content.length / 2);
+      default:
+        return content;
+    }
   }
 
   /**
@@ -105,4 +128,3 @@ public class JpegMutator implements Mutator {
     return content;
   }
 }
-
