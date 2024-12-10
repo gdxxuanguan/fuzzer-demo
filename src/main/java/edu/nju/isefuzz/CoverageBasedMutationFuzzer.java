@@ -53,6 +53,9 @@ public class CoverageBasedMutationFuzzer {
 
     private static final long runDurationMillis = 24 * 60 * 60 * 1000L; // 24小时
 
+    private static long totalExecs = 0;     // 总共执行过多少次测试输入
+    private static long savedCrashesCount = 0; // 保存了多少crash种子
+
     public static void main(String[] args) throws Exception {
         // 检查命令行参数的数量是否正确
         if (args.length < 3) {
@@ -81,10 +84,19 @@ public class CoverageBasedMutationFuzzer {
         // 定义时间格式
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd_HH_mm_ss");
         String timestamp = now.format(formatter);
-        File file = new File(outputDir + "/" + tmp[tmp.length-1] + timestamp + ".txt");
+        File file = new File(outputDir + "/" + tmp[tmp.length-1] + "_plot_data_" + timestamp + ".txt");
+        // 写入表头
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+            // 如果文件是新创建的或为空，则写入表头
+            if (file.length() == 0) {
+                // 根据需要添加列名称，这里仅作为示例
+                writer.write("# relative_time cycles_done queue_size covered_blocks saved_crashes execs_per_sec total_execs");
+                writer.newLine();
+            }
+        }
 
         //创建favor目录
-        String favorDir = outputDir + "/favor";
+        String favorDir = outputDir + "/queue";
         try {
             DirectoryUtils.recreateDirectory(favorDir);
         } catch (IOException e) {
@@ -94,7 +106,7 @@ public class CoverageBasedMutationFuzzer {
         File favorFile;
         long favorSeedIndex = 1L;
         //创建crash目录
-        String crashDir = outputDir + "/crash";
+        String crashDir = outputDir + "/crashes";
         try {
             DirectoryUtils.recreateDirectory(crashDir);
         } catch (IOException e) {
@@ -187,6 +199,7 @@ public class CoverageBasedMutationFuzzer {
 
             // 执行变异种子
             for (Seed testInput : testInputs) {
+                totalExecs++;  // 增加执行次数计数
                 // 使用 try-with-resources 确保 TempFileHandler 自动关闭
                 try (TempFileHandler tempFileHandler = new TempFileHandler(testInput.getContent(), TEMP_DIR)) {
                     String tempFilePath = tempFileHandler.getTempFilePath();
@@ -212,22 +225,14 @@ public class CoverageBasedMutationFuzzer {
                         continue; // 跳过当前测试输入，继续下一个
                     }
 
-                    // 计算自测试开始以来的累计时间
+                    // 计算已经运行的时间（小时）
                     Duration elapsedDuration = Duration.between(startInstant, Instant.now());
-                    double elapsedHours = elapsedDuration.toMillis() / 3600000.0; // 转换为小时
-                    // 保留七位小数
+                    double elapsedHours = elapsedDuration.toMillis() / 3600000.0;
                     DecimalFormat df = new DecimalFormat("#.#######");
                     String elapsedHoursStr = df.format(elapsedHours);
 
-                    try {
-                        // 以追加模式打开文件，第二个参数设置为true
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-                        writer.write(coveredBlocks.size() + " " + elapsedHoursStr + "\n");
-                        writer.close();
-                        System.out.println("数据已成功追加保存到 " + file.getAbsolutePath());
-                    } catch (IOException e) {
-                        logger.severe("存储失败: " + e.getMessage());
-                    }
+                    // 计算 execs_per_sec
+                    double execsPerSec = 1.0 / Double.parseDouble(execResult.getExecuteTime());
 
                     // 创建潜在种子对象
                     Seed potentialSeed = new Seed(testInput.getContent(), getFileExtension(targetProgramPath), false);
@@ -239,6 +244,7 @@ public class CoverageBasedMutationFuzzer {
 
                     // 处理执行结果
                     seedHandler.handleExecutionResult(potentialSeed, execResult, observedResults);
+
                     //创建种子文件
                     //如果是favor，就将其创建到favor目录下
                     if (potentialSeed.isFavored()) {
@@ -253,6 +259,7 @@ public class CoverageBasedMutationFuzzer {
                     }
                     //如果是crash，就将其创建到crash目录下
                     if (potentialSeed.isCrash()) {
+                        savedCrashesCount++;
                         crashFile = new File(crashDir+"/"+crashSeedIndex+"_"+testCaseName);
                         try (FileOutputStream fos = new FileOutputStream(crashFile)) {
                             fos.write(potentialSeed.getContent());
@@ -261,6 +268,22 @@ public class CoverageBasedMutationFuzzer {
                         } catch (IOException e) {
                             logger.severe("存入crash种子文件失败: " + e.getMessage());
                         }
+                    }
+
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+                        // 示例中写入 relative_time, fuzzRound, queue_size, covered_blocks, saved_crashes, execs_per_sec, total_execs
+                        writer.write(
+                                elapsedHoursStr + " " +
+                                        fuzzRound + " " +
+                                        seedSorter.getQueueSize() + " " +
+                                        coveredBlocks.size() + " " +
+                                        savedCrashesCount + " " +
+                                        String.format("%.2f", execsPerSec) + " " +
+                                        totalExecs
+                        );
+                        writer.newLine();
+                    } catch (IOException e) {
+                        logger.severe("存储失败: " + e.getMessage());
                     }
 
                     // 将潜在种子添加到能量调度器和种子列表中
