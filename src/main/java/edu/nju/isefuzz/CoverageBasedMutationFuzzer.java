@@ -6,7 +6,7 @@ import edu.nju.isefuzz.executor.SeedHandler;
 import edu.nju.isefuzz.model.ExecutionResult;
 import edu.nju.isefuzz.model.Seed;
 import edu.nju.isefuzz.mutator.MutatorUtils;
-import edu.nju.isefuzz.seedSorter.*;
+import edu.nju.isefuzz.seedSorter.SeedSorter;
 import edu.nju.isefuzz.seedSorter.SortingStrategy;
 import edu.nju.isefuzz.util.DirectoryUtils;
 import edu.nju.isefuzz.util.PriorityCalculator;
@@ -16,13 +16,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -85,7 +86,7 @@ public class CoverageBasedMutationFuzzer {
         //创建favor目录
         String favorDir = outputDir + "/favor";
         try {
-            DirectoryUtils.ensureDirectoryExists(favorDir);
+            DirectoryUtils.recreateDirectory(favorDir);
         } catch (IOException e) {
             System.err.println("处理目录时发生错误: " + e.getMessage());
             System.exit(1);
@@ -95,7 +96,7 @@ public class CoverageBasedMutationFuzzer {
         //创建crash目录
         String crashDir = outputDir + "/crash";
         try {
-            DirectoryUtils.ensureDirectoryExists(crashDir);
+            DirectoryUtils.recreateDirectory(crashDir);
         } catch (IOException e) {
             System.err.println("处理目录时发生错误: " + e.getMessage());
             System.exit(1);
@@ -217,9 +218,6 @@ public class CoverageBasedMutationFuzzer {
                     // 保留七位小数
                     DecimalFormat df = new DecimalFormat("#.#######");
                     String elapsedHoursStr = df.format(elapsedHours);
-
-                    // 获取覆盖的块数
-                    int cntOfBlocks = execResult.getCntOfBlocks();
 
                     try {
                         // 以追加模式打开文件，第二个参数设置为true

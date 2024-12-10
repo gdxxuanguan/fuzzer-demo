@@ -175,6 +175,7 @@ public class Seed {
     sb.append("Seed [Type=").append(fileType)
             .append(", Size=").append(content.length).append(" bytes")
             .append(", IsFavored=").append(isFavored ? "Yes" : "No")
+            .append(", IsCrash=").append(isCrash ? "Yes" : "No")
             .append(", BlockCount=").append(blockCount)
             .append(", LastExecutionTime=").append(lastExecutionTime != null ? lastExecutionTime : "N/A")
             .append(", PriorityScore=").append(priorityScore)

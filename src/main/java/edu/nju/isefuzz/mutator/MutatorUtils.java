@@ -176,7 +176,7 @@ public class MutatorUtils {
       Path jpegInputPath = baseDir.resolve(Paths.get("images", "jpeg", "not_kitty.jpg"));
       mutateFile(
             "djpeg",  // 文件类型
-            jpegInputPath.toString(),  // 输入文��路径（相对路径）
+            jpegInputPath.toString(),  // 输入文件路径（相对路径）
             tempDirPath.toString(),  // 临时输出目录（相对路径）
             1  // 变异次数
       );

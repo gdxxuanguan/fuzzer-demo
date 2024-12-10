@@ -24,25 +24,12 @@ public class SeedHandler {
 
     /**
      * 处理执行结果，更新种子的 metadata 并计算优先级分数。
-     * 默认 isInitial 为 false。
      *
      * @param seed        执行的种子
      * @param execRes     执行结果
      * @param observedRes 已观察到的执行结果集合
      */
     public void handleExecutionResult(Seed seed, ExecutionResult execRes, Set<ExecutionResult> observedRes) {
-        handleExecutionResult(seed, execRes, observedRes, false);
-    }
-
-    /**
-     * 处理执行结果，更新种子的 metadata 并计算优先级分数。
-     *
-     * @param seed        执行的种子
-     * @param execRes     执行结果
-     * @param observedRes 已观察到的执行结果集合
-     * @param isInitial   是否为初始执行
-     */
-    public void handleExecutionResult(Seed seed, ExecutionResult execRes, Set<ExecutionResult> observedRes, boolean isInitial) {
         Map<String, Object> metadata = seed.getMetadata();
 
         // 更新执行次数
@@ -60,7 +47,7 @@ public class SeedHandler {
         }
 
         // 更新新覆盖块数
-        if (execRes.isReachNewBlock() && !isInitial) {
+        if (execRes.isReachNewBlock()) {
             int newBlocks = execRes.getNewBlocks();
             metadata.put("newBlocks", newBlocks);
             seed.setFavored(); // 标记为优先种子
