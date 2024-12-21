@@ -237,6 +237,9 @@ public class CoverageBasedMutationFuzzer {
                     // 创建潜在种子对象
                     Seed potentialSeed = new Seed(testInput.getContent(), getFileExtension(targetProgramPath), false);
 
+                    // 消耗种子的能量
+                    energyScheduler.consumeEnergy(selectedSeed, ENERGY_PER_MUTATION);
+
                     // 如果种子列表中已存在该种子，则跳过
                     if (seedSorter.contains(potentialSeed)) {
                         continue;
@@ -292,9 +295,6 @@ public class CoverageBasedMutationFuzzer {
 
                     // 更新种子的能量状态
                     energyScheduler.updateEnergy(potentialSeed, execResult);
-
-                    // 消耗种子的能量
-                    energyScheduler.consumeEnergy(selectedSeed, ENERGY_PER_MUTATION);
 
 
                 } catch (IOException e) {
