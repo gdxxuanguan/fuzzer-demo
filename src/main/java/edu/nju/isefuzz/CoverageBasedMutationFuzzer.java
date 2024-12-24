@@ -293,12 +293,11 @@ public class CoverageBasedMutationFuzzer {
                     }
 
                     // 将潜在种子添加到能量调度器和种子列表中
-                    if (!potentialSeed.isCrash() || (potentialSeed.isCrash() && execResult.isReachNewBlock())) {
-                        energyScheduler.addSeed(potentialSeed);
-                        seedSorter.addSeed(potentialSeed);
-                        // 更新种子的能量状态
-                        energyScheduler.updateEnergy(potentialSeed, execResult);
-                    }
+                    energyScheduler.addSeed(potentialSeed);
+                    seedSorter.addSeed(potentialSeed);
+                    // 更新种子的能量状态
+                    energyScheduler.updateEnergy(potentialSeed, execResult);
+
 
                 } catch (IOException e) {
                     logger.severe("Failed to handle temporary file: " + e.getMessage());
