@@ -189,7 +189,6 @@ public class CoverageBasedMutationFuzzer {
 
             System.out.printf("[FUZZER] FuzzRnd No.%d, selected seed `%s`, mutation count `%d`\n",
                     fuzzRound, selectedSeed, mutationCount);
-            Thread.sleep(5000);
 
             Set<Seed> testInputs = new HashSet<>();
             for (int i = 0; i < mutationCount; i++) {

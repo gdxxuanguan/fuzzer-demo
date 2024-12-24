@@ -8,6 +8,7 @@ package edu.nju.isefuzz.model;
  * @Version V1.0
  */
 
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -123,5 +124,4 @@ public class ExecutionResult {
   public int hashCode() {
     return Objects.hash(info, exitVal);
   }
-
 }
