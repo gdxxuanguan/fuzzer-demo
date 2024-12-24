@@ -95,24 +95,28 @@ public class CoverageBasedMutationFuzzer {
             }
         }
 
-        //创建favor目录
-        String favorDir = outputDir + "/queue";
+        // 创建带有时间戳的 queue 目录
+        String favorDirName = "queue_" + tmp[tmp.length-1] + "_" + timestamp;
+        Path favorDir = Paths.get(outputDir, favorDirName);
         try {
-            DirectoryUtils.recreateDirectory(favorDir);
+            Files.createDirectories(favorDir);
         } catch (IOException e) {
-            System.err.println("处理目录时发生错误: " + e.getMessage());
+            System.err.println("创建目录时发生错误: " + e.getMessage());
             System.exit(1);
         }
         File favorFile;
         long favorSeedIndex = 1L;
-        //创建crash目录
-        String crashDir = outputDir + "/crashes";
+
+        // 创建带有时间戳的 crashes 目录
+        String crashDirName = "crashes_" + tmp[tmp.length-1] + "_" + timestamp;
+        Path crashDir = Paths.get(outputDir, crashDirName);
         try {
-            DirectoryUtils.recreateDirectory(crashDir);
+            Files.createDirectories(crashDir);
         } catch (IOException e) {
-            System.err.println("处理目录时发生错误: " + e.getMessage());
+            System.err.println("创建目录时发生错误: " + e.getMessage());
             System.exit(1);
         }
+
         File crashFile;
         long crashSeedIndex = 1L;
 
@@ -204,7 +208,7 @@ public class CoverageBasedMutationFuzzer {
                     String tempFilePath = tempFileHandler.getTempFilePath();
 
                     if (tempFilePath == null) {
-                        logger.warning("Failed to write test input to temp file. Skipping this input.");
+                        logger.warning("Failed to write test input to temp file. Skipping this inpucd t.");
                         continue;
                     }
                     System.out.printf("[FUZZER] Temp file path: %s%n", tempFilePath);
@@ -260,7 +264,7 @@ public class CoverageBasedMutationFuzzer {
                         }
                     }
                     //如果是crash，就将其创建到crash目录下
-                    if (potentialSeed.isCrash()) {
+                    if (potentialSeed.isCrash() && execResult.isReachNewBlock()) {
                         savedCrashesCount++;
                         crashFile = new File(crashDir+"/"+crashSeedIndex+"_"+testCaseName);
                         try (FileOutputStream fos = new FileOutputStream(crashFile)) {
@@ -289,12 +293,12 @@ public class CoverageBasedMutationFuzzer {
                     }
 
                     // 将潜在种子添加到能量调度器和种子列表中
-                    energyScheduler.addSeed(potentialSeed);
-                    seedSorter.addSeed(potentialSeed);
-
-                    // 更新种子的能量状态
-                    energyScheduler.updateEnergy(potentialSeed, execResult);
-
+                    if (!potentialSeed.isCrash() || (potentialSeed.isCrash() && execResult.isReachNewBlock())) {
+                        energyScheduler.addSeed(potentialSeed);
+                        seedSorter.addSeed(potentialSeed);
+                        // 更新种子的能量状态
+                        energyScheduler.updateEnergy(potentialSeed, execResult);
+                    }
 
                 } catch (IOException e) {
                     logger.severe("Failed to handle temporary file: " + e.getMessage());
