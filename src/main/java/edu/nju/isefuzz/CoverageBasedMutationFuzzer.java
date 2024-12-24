@@ -253,7 +253,7 @@ public class CoverageBasedMutationFuzzer {
 
                     //创建种子文件
                     //如果是favor，就将其创建到favor目录下
-                    if (potentialSeed.isFavored()) {
+                    if (potentialSeed.isFavored() && execResult.isReachNewBlock()) {
                         favorFile = new File(favorDir+"/"+favorSeedIndex+"_"+testCaseName);
                         try (FileOutputStream fos = new FileOutputStream(favorFile)) {
                             fos.write(potentialSeed.getContent());
