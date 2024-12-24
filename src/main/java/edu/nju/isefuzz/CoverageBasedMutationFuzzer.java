@@ -292,11 +292,14 @@ public class CoverageBasedMutationFuzzer {
                         logger.severe("存储失败: " + e.getMessage());
                     }
 
-                    // 将潜在种子添加到能量调度器和种子列表中
-                    energyScheduler.addSeed(potentialSeed);
-                    seedSorter.addSeed(potentialSeed);
-                    // 更新种子的能量状态
-                    energyScheduler.updateEnergy(potentialSeed, execResult);
+                    if (!potentialSeed.isCrash() || (potentialSeed.isCrash() && execResult.isReachNewBlock())) {
+                        // 将潜在种子添加到能量调度器和种子列表中
+                        energyScheduler.addSeed(potentialSeed);
+                        seedSorter.addSeed(potentialSeed);
+                        // 更新种子的能量状态
+                        energyScheduler.updateEnergy(potentialSeed, execResult);
+                    }
+
 
 
                 } catch (IOException e) {
