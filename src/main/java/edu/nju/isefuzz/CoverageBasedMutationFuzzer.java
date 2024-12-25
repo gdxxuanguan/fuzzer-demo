@@ -292,15 +292,11 @@ public class CoverageBasedMutationFuzzer {
                         logger.severe("存储失败: " + e.getMessage());
                     }
 
-
                     // 将潜在种子添加到能量调度器和种子列表中
                     energyScheduler.addSeed(potentialSeed);
                     seedSorter.addSeed(potentialSeed);
                     // 更新种子的能量状态
                     energyScheduler.updateEnergy(potentialSeed, execResult);
-
-
-
 
                 } catch (IOException e) {
                     logger.severe("Failed to handle temporary file: " + e.getMessage());
@@ -309,23 +305,18 @@ public class CoverageBasedMutationFuzzer {
             seedSorter.addSeed(selectedSeed);
 
             // 种子队列过滤：当队列大小超过阈值时，移除不优先的种子
-            if (seedSorter.getQueueSize() > MAX_QUEUE_SIZE) { // MAX_QUEUE_SIZE = 500
-                logger.info(String.format("[FUZZER] Queue size (%d) exceeds MAX_QUEUE_SIZE. Shrinking queue...",
-                        seedSorter.getQueueSize()));
-
-                // 移除不优先的种子
+            while (seedSorter.getQueueSize() > MAX_QUEUE_SIZE) { // MAX_QUEUE_SIZE = 500
+                Seed leastPrioritySeed = null;
                 Iterator<Seed> iterator = seedSorter.getIterator();
-                int removedCount = 0;
-                while (iterator.hasNext() && seedSorter.getQueueSize() > MAX_QUEUE_SIZE) {
-                    Seed seed = iterator.next();
-                    if (!seed.isFavored()) {
-                        iterator.remove();
-                        energyScheduler.removeSeed(seed);
-                        removedCount++;
-                    }
+                while (iterator.hasNext()) {
+                    leastPrioritySeed = iterator.next();
                 }
-                logger.info(String.format("[FUZZER] Shrink queue by removing %d unfavored seeds. New queue size: %d",
-                        removedCount, seedSorter.getQueueSize()));
+
+                if (leastPrioritySeed != null) {
+                    // 使用队列的内部方法 remove 来删除它
+                    seedSorter.removeSeed(leastPrioritySeed);
+                    energyScheduler.removeSeed(leastPrioritySeed);  // 如果你需要在调度器中移除它
+                }
             }
             // 可选：根据某些条件切换排序策略，例如每100轮切换一次
             if (fuzzRound % 100 == 0) {

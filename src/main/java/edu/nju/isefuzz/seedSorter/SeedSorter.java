@@ -41,6 +41,11 @@ public class SeedSorter {
         return seedQueue.poll();
     }
 
+    public Seed removeSeed(Seed seed) {
+        seedQueue.remove(seed);
+        return seed;
+    }
+
     /**
      * 切换排序策略，并重新构建队列。
      */
