@@ -27,9 +27,8 @@ public class SeedHandler {
      *
      * @param seed        执行的种子
      * @param execRes     执行结果
-     * @param observedRes 已观察到的执行结果集合
      */
-    public void handleExecutionResult(Seed seed, ExecutionResult execRes, Set<ExecutionResult> observedRes) {
+    public void handleExecutionResult(Seed seed, ExecutionResult execRes) {
         Map<String, Object> metadata = seed.getMetadata();
 
         // 更新执行次数
@@ -63,11 +62,6 @@ public class SeedHandler {
             logger.info(String.format("[FUZZER] Seed %s caused a crash. Marked as crashed.", seed));
         }
 
-        // 处理新的执行结果
-        if (!observedRes.contains(execRes)) {
-            seed.setFavored(); // 标记为优先种子
-            observedRes.add(execRes);
-        }
 
         // 计算并更新优先级分数
         priorityCalculator.calculateAndUpdateScore(seed);

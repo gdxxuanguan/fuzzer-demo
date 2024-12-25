@@ -157,8 +157,8 @@ public class CoverageBasedMutationFuzzer {
         // 将初始种子添加到能量调度器中
         energyScheduler.addSeed(initialSeed);
 
-        // 初始化已观察到的执行结果集合，用于标记优先种子
-        Set<ExecutionResult> observedResults = new HashSet<>();
+//        // 初始化已观察到的执行结果集合，用于标记优先种子
+//        Set<ExecutionResult> observedResults = new HashSet<>();
 
         // 将初始种子添加到种子排序器和能量调度器中
         seedSorter.addSeed(initialSeed);
@@ -249,7 +249,7 @@ public class CoverageBasedMutationFuzzer {
                     }
 
                     // 处理执行结果
-                    seedHandler.handleExecutionResult(potentialSeed, execResult, observedResults);
+                    seedHandler.handleExecutionResult(potentialSeed, execResult);
 
                     //创建种子文件
                     //如果是favor，就将其创建到favor目录下
