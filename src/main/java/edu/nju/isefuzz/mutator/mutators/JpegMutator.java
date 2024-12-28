@@ -121,6 +121,11 @@ public class JpegMutator implements Mutator {
    * 变异段标记（Markers）。
    */
   private byte[] mutateMarkers(byte[] content) {
+    // 检查 content 的长度是否合法
+    if (content == null || content.length <= 4) {
+      System.err.println("Content length is too short for mutation. Skipping mutation.");
+      return content; // 返回原内容，不进行变异
+    }
     // 随机插入伪造的段标记
     int offset = random.nextInt(content.length - 4);
     content[offset] = (byte) 0xFF;
