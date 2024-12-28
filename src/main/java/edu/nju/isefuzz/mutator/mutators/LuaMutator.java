@@ -12,6 +12,14 @@ public class LuaMutator implements Mutator {
 
   private final Random random = new Random();
 
+  private int safeNextInt(int bound) {
+    if (bound <= 0) {
+      System.err.println("Warning: bound must be positive. Returning 0 as default.");
+      return 0;
+    }
+    return random.nextInt(bound);
+  }
+
   @Override
   public Seed mutate(Seed seed) {
     byte[] content = seed.getContent();
@@ -73,7 +81,7 @@ public class LuaMutator implements Mutator {
    */
   private byte[] insertRandomCode(byte[] content) {
     String lua = new String(content);
-    int pos = random.nextInt(lua.length());
+    int pos = safeNextInt(lua.length());
     String randomCode = "print('mutated!')\n";
     lua = lua.substring(0, pos) + randomCode + lua.substring(pos);
     return lua.getBytes();
@@ -84,8 +92,8 @@ public class LuaMutator implements Mutator {
    */
   private byte[] deleteRandomCode(byte[] content) {
     String lua = new String(content);
-    int start = random.nextInt(lua.length() / 2);
-    int end = start + random.nextInt(lua.length() / 2);
+    int start = safeNextInt(lua.length() / 2);
+    int end = start + safeNextInt(lua.length() / 2);
     if (end > start && end < lua.length()) {
       lua = lua.substring(0, start) + lua.substring(end);
     }
@@ -98,7 +106,7 @@ public class LuaMutator implements Mutator {
   private byte[] mutateComments(byte[] content) {
     String lua = new String(content);
     // 插入随机注释
-    int pos = random.nextInt(lua.length());
+    int pos =safeNextInt(lua.length());
     String randomComment = "-- This is a mutated comment " + random.nextInt(1000) + "\n";
     lua = lua.substring(0, pos) + randomComment + lua.substring(pos);
     return lua.getBytes();
@@ -109,7 +117,7 @@ public class LuaMutator implements Mutator {
    */
   private byte[] insertSyntaxError(byte[] content) {
     String lua = new String(content);
-    int pos = random.nextInt(lua.length());
+    int pos = safeNextInt(lua.length());
     String syntaxError = "!!!syntax_error!!!";
     lua = lua.substring(0, pos) + syntaxError + lua.substring(pos);
     return lua.getBytes();

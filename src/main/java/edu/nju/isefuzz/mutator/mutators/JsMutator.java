@@ -9,6 +9,14 @@ import edu.nju.isefuzz.mutator.Mutator;
  */
 public class JsMutator implements Mutator {
 
+  private int safeNextInt(int bound) {
+    if (bound <= 0) {
+      System.err.println("Warning: bound must be positive. Returning 0 as default.");
+      return 0;
+    }
+    return random.nextInt(bound);
+  }
+
   private final Random random = new Random();
 
   @Override
@@ -16,7 +24,7 @@ public class JsMutator implements Mutator {
     byte[] content = seed.getContent();
 
     // 在单次变异中综合多种策略
-    int mutationCount = random.nextInt(3) + 1; // 每次执行1-3种变异
+    int mutationCount = safeNextInt(3) + 1; // 每次执行1-3种变异
     for (int i = 0; i < mutationCount; i++) {
       content = applyRandomMutation(content);
     }
@@ -29,7 +37,7 @@ public class JsMutator implements Mutator {
    */
   private byte[] applyRandomMutation(byte[] content) {
     // 合法与非法变异的权重控制
-    int choice = random.nextInt(100);
+    int choice = safeNextInt(100);
     if (choice < 80) {
       // 合法变异（80%概率）
       return applyValidMutation(content);
@@ -43,7 +51,7 @@ public class JsMutator implements Mutator {
    * 合法变异操作。
    */
   private byte[] applyValidMutation(byte[] content) {
-    int choice = random.nextInt(5);
+    int choice = safeNextInt(5);
     switch (choice) {
       case 0:
         return mutateIdentifiers(content);
@@ -64,7 +72,7 @@ public class JsMutator implements Mutator {
    * 非法变异操作。
    */
   private byte[] applyInvalidMutation(byte[] content) {
-    int choice = random.nextInt(3);
+    int choice = safeNextInt(3);
     switch (choice) {
       case 0:
         return insertSyntaxError(content);
@@ -82,7 +90,7 @@ public class JsMutator implements Mutator {
    */
   private byte[] mutateIdentifiers(byte[] content) {
     String js = new String(content);
-    js = js.replaceAll("\\b[a-zA-Z_][a-zA-Z0-9_]*\\b", "mutatedVar_" + random.nextInt(1000));
+    js = js.replaceAll("\\b[a-zA-Z_][a-zA-Z0-9_]*\\b", "mutatedVar_" + safeNextInt(1000));
     return js.getBytes();
   }
 
@@ -102,10 +110,10 @@ public class JsMutator implements Mutator {
     };
 
     // 随机选择代码片段
-    String randomCode = randomCodes[random.nextInt(randomCodes.length)];
+    String randomCode = randomCodes[safeNextInt(randomCodes.length)];
 
     // 随机插入到文件中的位置
-    int pos = random.nextInt(js.length());
+    int pos = safeNextInt(js.length());
 
     // 插入代码片段
     js = js.substring(0, pos) + randomCode + "\n" + js.substring(pos);
@@ -117,8 +125,8 @@ public class JsMutator implements Mutator {
    */
   private byte[] deleteRandomCode(byte[] content) {
     String js = new String(content);
-    int start = random.nextInt(js.length() / 2);
-    int end = start + random.nextInt(js.length() / 2);
+    int start = safeNextInt(js.length() / 2);
+    int end = start + safeNextInt(js.length() / 2);
     if (end > start && end < js.length()) {
       js = js.substring(0, start) + js.substring(end);
     }
@@ -130,8 +138,8 @@ public class JsMutator implements Mutator {
    */
   private byte[] mutateComments(byte[] content) {
     String js = new String(content);
-    int pos = random.nextInt(js.length());
-    String randomComment = "// Mutated comment: " + random.nextInt(1000);
+    int pos = safeNextInt(js.length());
+    String randomComment = "// Mutated comment: " + safeNextInt(1000);
     js = js.substring(0, pos) + randomComment + js.substring(pos);
     return js.getBytes();
   }
@@ -150,7 +158,7 @@ public class JsMutator implements Mutator {
    */
   private byte[] insertSyntaxError(byte[] content) {
     String js = new String(content);
-    int pos = random.nextInt(js.length());
+    int pos = safeNextInt(js.length());
     String syntaxError = "{!!!SYNTAX_ERROR!!!}";
     js = js.substring(0, pos) + syntaxError + js.substring(pos);
     return js.getBytes();
@@ -171,7 +179,7 @@ public class JsMutator implements Mutator {
    * 截断代码。
    */
   private byte[] truncateCode(byte[] content) {
-    int truncatePoint = random.nextInt(content.length / 2);
+    int truncatePoint = safeNextInt(content.length / 2);
     return new String(content).substring(0, truncatePoint).getBytes();
   }
 }
