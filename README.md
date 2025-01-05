@@ -296,21 +296,24 @@ chmod +x /opt/project/dev/target/classes/cpptest/coverage_collector
 java edu.nju.isefuzz.CoverageBasedMutationFuzzer /targets/djpeg /testcases/images/jpeg/not_kitty.jpg ./out
 ```
 
-### DockerHub链接
+### DockerHub
+你可以通过以下命令从 Docker Hub 拉取 `fuzzer-demo` 镜像：
 
+```bash
+docker pull kaixuan77/fuzzer-demo:latest
+```
+也可以访问DockerHub链接：[fuzzer-demo](https://hub.docker.com/repository/docker/kaixuan77/fuzzer-demo)
 
 ### Docker 环境包含内容
 + 项目源码和依赖
-+ 10 个指定的模糊目标，位于resources里的targets中
-+ 每个模糊目标运行 24 小时后的测试数据，位于run_result文件夹中
-+ 数据分析脚本，位于Evaluation包中
++ 10 个指定的模糊目标，位于`resources`里的`targets`中
++ 每个模糊目标运行 24 小时后的测试数据，位于`run_result`文件夹中
++ 数据分析脚本，位于`Evaluation`包中
 
 ## 评估结果
 模糊测试完成后，评估组件会生成一组统计图表，包括但不限于：
 
-+ 10 张覆盖率曲线图，每张对应一个模糊目标
-
-位于graphic_result文件夹中
++ 10 张覆盖率曲线图，每张对应一个模糊目标, 位于`graphic_result`文件夹中
 
 ## 演示视频
 为了帮助您更好地理解和使用工具，我们准备了一个演示视频，展示工具的使用方法和模糊测试流程。视频时长控制在 8 分钟以内，并上传至 B 站。
