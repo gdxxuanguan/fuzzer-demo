@@ -15,8 +15,8 @@
 fuzzer-demo/
 ├── README.md
 ├── pom.xml
-├── run_result        # 新添加的文件夹，用于存放运行结果，docker中未上传到GitHub
-├── graphic_result    # 新添加的文件夹，用于存放生成的图像结果
+├── run_result        # 用于存放24h运行结果，存于docker中，未上传到GitHub
+├── graphic_result    # 用于存放生成的图像结果
 ├── src
 │   ├── main
 │   │   └── java
