@@ -14,6 +14,7 @@
 ```plain
 fuzzer-demo/
 ├── README.md
+├── devlog.md
 ├── pom.xml
 ├── run_result        # 用于存放24h运行结果，存于docker中，未上传到GitHub
 ├── graphic_result    # 用于存放生成的图像结果
@@ -318,6 +319,6 @@ docker pull kaixuan77/fuzzer-demo:latest
 ## 演示视频
 为了帮助您更好地理解和使用工具，我们准备了一个演示视频，展示工具的使用方法和模糊测试流程。视频时长控制在 8 分钟以内，并上传至 B 站。
 
-观看视频：B 站视频链接
+观看视频：[fuzzer-demo 演示视频](https://www.bilibili.com/video/BV1Qo4y1z7Zz)
 
 ## 
