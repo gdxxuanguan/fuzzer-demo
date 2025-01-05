@@ -1,0 +1,11 @@
+TID,Target,Fuzzer #Reg.
+T01,cxxfilt,1026
+T02,djpeg,667
+T03,lua,657
+T04,mjs,656
+T05,nm_new,956
+T06,objdump,2165
+T07,readelf,1863
+T08,readpng,798
+T09,tcpdump,686
+T10,xmllint,1965
