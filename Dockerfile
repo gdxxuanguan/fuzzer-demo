@@ -33,13 +33,13 @@ RUN mkdir -p /root/.m2 && \
     </mirror>' /root/.m2/settings.xml
 
 # 克隆项目仓库
-RUN git clone https://github.com/gdxxuanguan/fuzzer-demo.git /opt/project/dev
+COPY . /opt/project/dev
 
 # 设置工作目录
 WORKDIR /opt/project/dev
 
 # 编译项目
-RUN mvn clean compile
+#RUN mvn clean compile
 
 RUN chmod +x target/classes/targets/*
 
