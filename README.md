@@ -302,7 +302,7 @@ java edu.nju.isefuzz.CoverageBasedMutationFuzzer /targets/djpeg /testcases/image
 ```bash
 docker pull kaixuan77/fuzzer-demo:latest
 ```
-也可以访问DockerHub链接：[fuzzer-demo](https://hub.docker.com/repository/docker/kaixuan77/fuzzer-demo)
+也可以访问DockerHub链接：[fuzzer-demo](https://hub.docker.com/r/kaixuan77/fuzzer-demo)
 
 ### Docker 环境包含内容
 + 项目源码和依赖
