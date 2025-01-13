@@ -319,6 +319,8 @@ docker pull kaixuan77/fuzzer-demo:latest
 ## 演示视频
 为了帮助您更好地理解和使用工具，我们准备了一个演示视频，展示工具的使用方法和模糊测试流程。视频时长控制在 8 分钟以内，并上传至 B 站。
 
-观看视频：[fuzzer-demo 演示视频](https://www.bilibili.com/video/BV1Qo4y1z7Zz)
+观看视频：[fuzzer-demo 演示视频](https://www.bilibili.com/video/BV125rNYPEwi/)
+
+
 
 ## 
